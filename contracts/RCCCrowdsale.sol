@@ -335,23 +335,22 @@ contract RCCCrowdsale is Ownable, Crowdsale, MintableToken {
     mapping (address => uint256) public deposited;
 
     uint256 public constant INITIAL_SUPPLY = 400 * (10 ** 3) * (10 ** uint256(decimals));
-    uint256 public fundForSale = 400 * (10 ** 3) * (10 ** uint256(decimals));
+    uint256 public fundForSale = 375 * (10 ** 3) * (10 ** uint256(decimals));
 
     uint256 public countInvestor;
+    bool public saleToken = true;
 
     event TokenPurchase(address indexed beneficiary, uint256 value, uint256 amount);
     event TokenLimitReached(uint256 tokenRaised, uint256 purchasedToken);
     event Finalized();
 
     function RCCCrowdsale(
-    address _owner,
-    address _wallet
+    address _owner
     )
     public
-    Crowdsale(_wallet)
+    Crowdsale(_owner)
     {
 
-        require(_wallet != address(0));
         require(_owner != address(0));
         owner = _owner;
         transfersEnabled = true;
@@ -375,6 +374,7 @@ contract RCCCrowdsale is Ownable, Crowdsale, MintableToken {
     // low level token purchase function
     function buyTokens(address _investor) public inState(State.Active) payable returns (uint256){
         require(_investor != address(0));
+        require(saleToken == true);
         uint256 weiAmount = msg.value;
         uint256 tokens = validPurchaseTokens(weiAmount);
         if (tokens == 0) {revert();}
@@ -391,7 +391,7 @@ contract RCCCrowdsale is Ownable, Crowdsale, MintableToken {
         return tokens;
     }
 
-    function getTotalAmountOfTokens(uint256 _weiAmount) internal view returns (uint256) {
+    function getTotalAmountOfTokens(uint256 _weiAmount) internal pure returns (uint256) {
         uint256 amountOfTokens = _weiAmount.mul(100);
         return amountOfTokens;
     }
@@ -428,6 +428,14 @@ contract RCCCrowdsale is Ownable, Crowdsale, MintableToken {
         finishMinting();
         Finalized();
         result = true;
+    }
+
+    function startSale() public onlyOwner {
+        saleToken = true;
+    }
+
+    function stopSale() public onlyOwner {
+        saleToken = false;
     }
 }
 

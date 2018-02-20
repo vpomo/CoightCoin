@@ -3,13 +3,13 @@ var RCCCrowdsale = artifacts.require("./RCCCrowdsale.sol");
 
 contract('RCCCrowdsale', (accounts) => {
     var contract;
-    var owner = "0xb79151e54dE4fc0a5940A52A70f5607055AdB73E";
-    var rate = Number(300/10**8);
+    var owner = "0x7009CB09651FaA029DaCEca476bA4F967bC63773";
+    var rate = Number(100);
     var buyWei = 1 * 10**18;
-    var rateNew = Number(300/10**8);
+    var rateNew = Number(100);
     var buyWeiNew = 5 * 10**17;
     var buyWeiMin = 1 * 10**15;
-    var totalSupply = 2e+19;
+    var totalSupply = 4e+23;
 
     it('should deployed contract', async ()  => {
         assert.equal(undefined, contract);
@@ -29,6 +29,7 @@ contract('RCCCrowdsale', (accounts) => {
 
 
     it('verification of receiving Ether', async ()  => {
+
         var tokenAllocatedBefore = await contract.tokenAllocated.call();
         var balanceAccountTwoBefore = await contract.balanceOf(accounts[2]);
         var weiRaisedBefore = await contract.weiRaised.call();
@@ -43,7 +44,7 @@ contract('RCCCrowdsale', (accounts) => {
         //console.log("tokenAllocatedAfter = " + tokenAllocatedAfter);
         assert.isTrue(tokenAllocatedBefore < tokenAllocatedAfter);
         assert.equal(0, tokenAllocatedBefore);
-        assert.equal(rate*buyWei, tokenAllocatedAfter);
+        assert.equal(rate*buyWei, Number(tokenAllocatedAfter));
 
        var balanceAccountTwoAfter = await contract.balanceOf(accounts[2]);
         assert.isTrue(balanceAccountTwoBefore < balanceAccountTwoAfter);
@@ -73,32 +74,6 @@ contract('RCCCrowdsale', (accounts) => {
         //assert.equal(totalSupply - balanceAccountThreeAfter - balanceAccountTwoAfter, balanceOwnerAfter);
     });
 
-    it('verification define period', async ()  => {
-        var currentDate = 1519516800; // Feb, 25
-        period = await contract.getPeriod(currentDate);
-        assert.equal(10, period);
-
-        currentDate = 1520640000; // Mar, 10
-        period = await contract.getPeriod(currentDate);
-        assert.equal(0, period);
-
-        currentDate = 1523318400; // Apr, 10
-        period = await contract.getPeriod(currentDate);
-        assert.equal(1, period);
-
-        currentDate = 1524873600; // Apr, 28
-        period = await contract.getPeriod(currentDate);
-        assert.equal(2, period);
-
-        currentDate = 1532736000; // Jul, 28
-        period = await contract.getPeriod(currentDate);
-        assert.equal(3, period);
-
-        currentDate = 1535414400; // Aug, 28
-        period = await contract.getPeriod(currentDate);
-        assert.equal(10, period);
-    });
-
     it('verification claim tokens', async ()  => {
         var balanceAccountOneBefore = await contract.balanceOf(accounts[0]);
         assert.equal(0, balanceAccountOneBefore);
@@ -116,12 +91,6 @@ contract('RCCCrowdsale', (accounts) => {
         assert.equal(0, balanceContractAfter);
         var balanceOwnerAfter = await contract.balanceOf(owner);
         assert.equal(true, balanceOwnerBefore<balanceOwnerAfter);
-    });
-
-    it('verification tokens limit min amount', async ()  => {
-            var numberTokensMinWey = await contract.validPurchaseTokens.call(buyWeiMin);
-            //console.log("numberTokensMinWey = " + numberTokensMinWey);
-            assert.equal(0, numberTokensMinWey);
     });
 
 });
